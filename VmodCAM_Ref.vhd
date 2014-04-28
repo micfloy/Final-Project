@@ -126,6 +126,8 @@ signal FbWrARst, FbWrBRst, int_FVA, int_FVB : std_logic;
 
 signal red_filter, grn_filter, blue_filter : std_logic_vector(7 downto 0);
 signal concat_red, concat_grn, concat_blue : std_logic_vector(7 downto 0);
+signal sepia_red, sepia_grn, sepia_blue : std_logic_vector(7 downto 0);
+
 
 begin
 
@@ -352,12 +354,19 @@ concat_red <= FbRdData(15 downto 11) & "000";
 concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
+sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
+				 "11111111";
+sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_grn) > 14 else
+				 "00000000";
+sepia_blue <= std_logic_vector(unsigned(concat_blue) - 56) when unsigned(concat_blue) > 56 else
+				  "00000000";
+		
 red_filter <= concat_red when SW_I(0) = '1' else
-				  std_logic_vector(unsigned(concat_red) + 49);
+				  sepia_red;
 grn_filter <= concat_grn  when SW_I(0) = '1' else
-				  std_logic_vector(unsigned(concat_grn) - 14);
+				  sepia_grn;
 blue_filter <= concat_blue when SW_I(0) = '1' else
-				  std_logic_vector(unsigned(concat_blue) - 56);
+				  sepia_blue;
 
 end Behavioral;
 
