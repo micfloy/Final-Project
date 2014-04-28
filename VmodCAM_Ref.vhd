@@ -21,6 +21,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.numeric_std.all;
 
 library digilent;
 use digilent.Video.ALL;
@@ -124,6 +125,7 @@ signal FbRdData : std_logic_vector(16-1 downto 0);
 signal FbWrARst, FbWrBRst, int_FVA, int_FVB : std_logic;
 
 signal red_filter, grn_filter, blue_filter : std_logic_vector(7 downto 0);
+signal concat_red, concat_grn, concat_blue : std_logic_vector(7 downto 0);
 
 begin
 
@@ -346,11 +348,16 @@ dummy_t <= '1';
 ---------------------------------------------------------------------------------------
 --Filtering
 ---------------------------------------------------------------------------------------
+concat_red <= FbRdData(15 downto 11) & "000";
+concat_grn <= FbRdData(10 downto 5) & "00";
+concat_blue <= FbRdData(4 downto 0) & "000";
 
-red_filter <= FbRdData(15 downto 11) & "000" when SW_I(0) = '1' else
-				  FbRdData(15 downto 11) & "111";
-grn_filter <= FbRdData(10 downto 5) & "00";
-blue_filter <= FbRdData(4 downto 0) & "000";
+red_filter <= concat_red when SW_I(0) = '1' else
+				  std_logic_vector(to_unsigned(concat_red, 8) + 49);
+grn_filter <= concat_grn  when SW_I(0) = '1' else
+				  std_logic_vector(to_unsigned(concat_grn, 8) - 14);
+blue_filter <= concat_blue when SW_I(0) = '1' else
+				  std_logic_vector(to_unsigned(concat_blue, 8) - 56);
 
 end Behavioral;
 
