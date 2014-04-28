@@ -25,9 +25,9 @@ use IEEE.numeric_std.all;
 
 library digilent;
 use digilent.Video.ALL;
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+
+library ieee_proposed;
+use ieee_proposed.fixed_pkg.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -130,6 +130,7 @@ signal sepia_red, sepia_grn, sepia_blue : std_logic_vector(7 downto 0);
 signal grayscale : std_logic_vector(7 downto 0);
 
 signal t_factor : unsigned(8);
+signal red_factor, green_factor, blue_factor : ufixed(0 downto -3); 
 
 
 begin
@@ -357,13 +358,19 @@ concat_red <= FbRdData(15 downto 11) & "000";
 concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
-t_factor <= (299*unsigned(concat_red))/1000 + (587*unsigned(concat_grn))/1000 + (114*unsigned(concat_blue))/1000;
+red_factor <= to_ufixed(0.299, 0,-3);
+green_factor <= to_ufixed(0.587, 0,-3);
+blue_factor <= to_ufixed(0.114, 0,-3);
 
-sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when t_factor < 206 else
+
+
+t_factor <= red_factor*unsigned(concat_red) + green_factor*unsigned(concat_green) + blue_factor*unsigned(concat_blue);
+
+sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
 				 "11111111";
-sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when t_factor > 14 else
+sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_grn) > 14 else
 				 "00000000";
-sepia_blue <= std_logic_vector(unsigned(concat_blue) - 56) when t_factor > 56 else
+sepia_blue <= std_logic_vector(unsigned(concat_blue) - 56) when unsigned(concat_blue) > 56 else
 				  "00000000";
 
 		
