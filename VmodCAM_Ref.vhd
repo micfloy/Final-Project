@@ -354,11 +354,11 @@ concat_red <= FbRdData(15 downto 11) & "000";
 concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
-sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
+sepia_red <= std_logic_vector(unsigned(concat_red) + 40) when unsigned(concat_red) < 197 else
 				 "11111111";
 sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_grn) > 14 else
 				 "00000000";
-sepia_blue <= std_logic_vector(unsigned(concat_blue) - 56) when unsigned(concat_blue) > 56 else
+sepia_blue <= std_logic_vector(unsigned(concat_blue) - 80) when unsigned(concat_blue) > 80 else
 				  "00000000";
 		
 red_filter <= concat_red when SW_I(0) = '1' else
