@@ -353,11 +353,11 @@ concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
 red_filter <= concat_red when SW_I(0) = '1' else
-				  std_logic_vector(to_unsigned(concat_red, 8) + 49);
+				  std_logic_vector(unsigned(concat_red) + 49);
 grn_filter <= concat_grn  when SW_I(0) = '1' else
-				  std_logic_vector(to_unsigned(concat_grn, 8) - 14);
+				  std_logic_vector(unsigned(concat_grn) - 14);
 blue_filter <= concat_blue when SW_I(0) = '1' else
-				  std_logic_vector(to_unsigned(concat_blue, 8) - 56);
+				  std_logic_vector(unsigned(concat_blue) - 56);
 
 end Behavioral;
 
