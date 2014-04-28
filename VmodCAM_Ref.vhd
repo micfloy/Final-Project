@@ -361,12 +361,15 @@ sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_gr
 sepia_blue <= std_logic_vector(unsigned(concat_blue) - 80) when unsigned(concat_blue) > 80 else
 				  "00000000";
 		
-red_filter <= concat_red when SW_I(0) = '1' else
-				  sepia_red;
-grn_filter <= concat_grn  when SW_I(0) = '1' else
-				  sepia_grn;
-blue_filter <= concat_blue when SW_I(0) = '1' else
-				  sepia_blue;
+red_filter  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' else
+				   not concat_red when SW_I(0) = '0' and SW_I(1) = '1' else
+				   concat_red;
+grn_filter  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' else
+			      not concat_grn when SW_I(0) = '0' and SW_I(1) = '1' else
+				   concat_grn;
+blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' else
+					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' else
+				   concat_blue;
 
 end Behavioral;
 
