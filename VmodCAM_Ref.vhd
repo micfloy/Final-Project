@@ -107,7 +107,7 @@ architecture Behavioral of VmodCAM_Ref is
 signal SysClk, PClk, PClkX2, SysRst, SerClk, SerStb : std_logic;
 signal MSel : std_logic_vector(1 downto 0);
 
-signal VtcHs, VtcVs, VtcVde, VtcRst : std_logic;
+signal VtcHs, VtcHs1, VtcVs, VtcVs1, VtcVde, VtcRst : std_logic;
 signal VtcHCnt, VtcVCnt : NATURAL;
 
 signal CamClk, CamClk_180, CamAPClk, CamBPClk, CamADV, CamBDV, CamAVddEn, CamBVddEn : std_logic;
@@ -261,8 +261,8 @@ FbWrBRst <= async_rst or not int_FVB;
 		RED_I => red_filter,
 		GREEN_I => grn_filter,
 		BLUE_I => blue_filter,
-		HS_I => VtcHs,
-		VS_I => VtcVs,
+		HS_I => VtcHs1,
+		VS_I => VtcVs1,
 		VDE_I => VtcVde,
 		PCLK_I => PClk,
 		PCLK_X2_I => PClkX2,
@@ -354,9 +354,19 @@ dummy_t <= '1';
 ---------------------------------------------------------------------------------------
 --Filtering
 ---------------------------------------------------------------------------------------
-concat_red <= FbRdData(15 downto 11) & "000";
-concat_grn <= FbRdData(10 downto 5) & "00";
-concat_blue <= FbRdData(4 downto 0) & "000";
+
+process(Pclk, FbRdData) 
+begin 
+	if(rising_edge(Pclk)) then
+		concat_red <= FbRdData(15 downto 11) & "000";
+		concat_grn <= FbRdData(10 downto 5) & "00";
+		concat_blue <= FbRdData(4 downto 0) & "000";
+		
+		VtcHs1 <= VtcHs;
+		VtcVs1 <= VtcVs;
+		
+	end if;
+end process;
 
 red_factor <= to_ufixed(0.299, 0,-3);
 green_factor <= to_ufixed(0.587, 0,-3);
@@ -364,7 +374,7 @@ blue_factor <= to_ufixed(0.114, 0,-3);
 
 
 
-t_factor <= red_factor*unsigned(concat_red) + green_factor*unsigned(concat_green) + blue_factor*unsigned(concat_blue);
+t_factor <= to_unsigned((red_factor*to_ufixed(concat_red,7,-3) + green_factor*to_ufixed(concat_grn,7,-3) + blue_factor*to_ufixed(concat_blue,7,-3)), 8);
 
 sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
 				 "11111111";
@@ -372,6 +382,9 @@ sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_gr
 				 "00000000";
 sepia_blue <= std_logic_vector(unsigned(concat_blue) - 56) when unsigned(concat_blue) > 56 else
 				  "00000000";
+
+grayscale <= std_logic_vector(t_factor);
+				  
 
 		
 red_filter  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' else
@@ -387,7 +400,5 @@ blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' else
 					grayscale when SW_I(0) = '1' and SW_I(1) = '1' else
 				   concat_blue;
 					
-grayscale <= std_logic_vector(t_factor);
-
 end Behavioral;
 
