@@ -130,8 +130,8 @@ signal sepia_red, sepia_grn, sepia_blue : std_logic_vector(7 downto 0);
 signal grayscale : std_logic_vector(7 downto 0);
 
 signal t_factor : unsigned(8);
-signal red_factor, green_factor, blue_factor : ufixed(0 downto -3); 
-
+signal red_factor_dec, green_factor_dec, blue_factor_dec : unsigned(11); 
+signal red_factor, green_factor, blue_factor : unsigned(8);
 
 begin
 
@@ -368,13 +368,17 @@ begin
 	end if;
 end process;
 
-red_factor <= to_ufixed(0.299, 0,-3);
-green_factor <= to_ufixed(0.587, 0,-3);
-blue_factor <= to_ufixed(0.114, 0,-3);
+red_factor_dec <= to_unsigned(to_ufixed(0.299, 7,-3)*to_ufixed(concat_red,7,-3),11);
+green_factor_dec <= to_unsigned(to_ufixed(0.587, 7,-3)*to_ufixed(concat_grn,7,-3),11);
+blue_factor_dec <= to_unsigned(to_ufixed(0.114, 7,-3)*to_ufixed(concat_blue,7,-3),11);
+
+red_factor <= red_factor_dec(10 downto 4);
+green_factor <= green_factor_dec(10 downto 4);
+blue_factor <= blue_factor_dec(10 downto 4);
 
 
 
-t_factor <= to_unsigned((red_factor*to_ufixed(concat_red,7,-3) + green_factor*to_ufixed(concat_grn,7,-3) + blue_factor*to_ufixed(concat_blue,7,-3)), 8);
+t_factor <= red_factor + green_factor + blue_factor;
 
 sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
 				 "11111111";
