@@ -130,7 +130,7 @@ signal sepia_red, sepia_grn, sepia_blue : std_logic_vector(7 downto 0);
 signal grayscale : std_logic_vector(7 downto 0);
 
 signal t_factor : unsigned(8);
-signal red_factor_dec, green_factor_dec, blue_factor_dec : unsigned(11); 
+signal red_factor_dec, green_factor_dec, blue_factor_dec : unsigned(18); 
 signal red_factor, green_factor, blue_factor : unsigned(8);
 
 begin
@@ -360,19 +360,19 @@ concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
 
-red_factor_dec <= to_unsigned(to_ufixed(0.299, 0,-8)*to_ufixed(concat_red,7,0),8);
-green_factor_dec <= to_unsigned(to_ufixed(0.587, 0,-8)*to_ufixed(concat_grn,7,0),8);
-blue_factor_dec <= to_unsigned(to_ufixed(0.114, 0,-8)*to_ufixed(concat_blue,7,0),8);
+red_factor_dec <= (299*unsigned(concat_red))/1000;
+green_factor_dec <= (587*unsigned(concat_grn))/1000;
+blue_factor_dec <= (114*unsigned(concat_blue))/1000;
 
---red_factor <= red_factor_dec;
---green_factor <= green_factor_dec;
---blue_factor <= blue_factor_dec;
+red_factor <= red_factor_dec(7 downto 0);
+green_factor <= green_factor_dec(7 downto 0);
+blue_factor <= blue_factor_dec(7 downto 0);
 
 
 
-t_factor <= red_factor_dec + green_factor_dec + blue_factor_dec;
+t_factor <= red_factor + green_factor + blue_factor;
 
-sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
+sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when t_factor < 206 else
 				 "11111111";
 sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_grn) > 14 else
 				 "00000000";
