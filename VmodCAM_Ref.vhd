@@ -360,13 +360,13 @@ concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
 
-red_factor_dec <= to_unsigned(to_ufixed(0.299, 7,-3)*to_ufixed(concat_red,7,-3),11);
-green_factor_dec <= to_unsigned(to_ufixed(0.587, 7,-3)*to_ufixed(concat_grn,7,-3),11);
-blue_factor_dec <= to_unsigned(to_ufixed(0.114, 7,-3)*to_ufixed(concat_blue,7,-3),11);
+red_factor_dec <= to_unsigned(to_ufixed(0.299, 7,-8)*to_ufixed(concat_red,7,-8),11);
+green_factor_dec <= to_unsigned(to_ufixed(0.587, 7,-8)*to_ufixed(concat_grn,7,-8),11);
+blue_factor_dec <= to_unsigned(to_ufixed(0.114, 7,-8)*to_ufixed(concat_blue,7,-8),11);
 
-red_factor <= red_factor_dec(10 downto 4);
-green_factor <= green_factor_dec(10 downto 4);
-blue_factor <= blue_factor_dec(10 downto 4);
+red_factor <= red_factor_dec(7 downto 0);
+green_factor <= green_factor_dec(7 downto 0);
+blue_factor <= blue_factor_dec(7 downto 0);
 
 
 
