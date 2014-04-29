@@ -107,7 +107,7 @@ architecture Behavioral of VmodCAM_Ref is
 signal SysClk, PClk, PClkX2, SysRst, SerClk, SerStb : std_logic;
 signal MSel : std_logic_vector(1 downto 0);
 
-signal VtcHs, VtcHs1, VtcVs, VtcVs1, VtcVde, VtcRst : std_logic;
+signal VtcHs, VtcHs1, VtcVs, VtcVs1, VtcVde, VtcVde1, VtcRst : std_logic;
 signal VtcHCnt, VtcVCnt : NATURAL;
 
 signal CamClk, CamClk_180, CamAPClk, CamBPClk, CamADV, CamBDV, CamAVddEn, CamBVddEn : std_logic;
@@ -124,7 +124,7 @@ signal FbRdy, FbRdEn, FbRdRst, FbRdClk : std_logic;
 signal FbRdData : std_logic_vector(16-1 downto 0);
 signal FbWrARst, FbWrBRst, int_FVA, int_FVB : std_logic;
 
-signal red_filter, grn_filter, blue_filter : std_logic_vector(7 downto 0);
+signal red_filter, red_filter1, grn_filter, grn_filter1, blue_filter, blue_filter1  : std_logic_vector(7 downto 0);
 signal concat_red, concat_grn, concat_blue : std_logic_vector(7 downto 0);
 signal sepia_red, sepia_grn, sepia_blue : std_logic_vector(7 downto 0);
 signal grayscale : std_logic_vector(7 downto 0);
@@ -258,9 +258,9 @@ FbWrBRst <= async_rst or not int_FVB;
 -- DVI Transmitter
 ----------------------------------------------------------------------------------
 	Inst_DVITransmitter: entity digilent.DVITransmitter PORT MAP(
-		RED_I => red_filter,
-		GREEN_I => grn_filter,
-		BLUE_I => blue_filter,
+		RED_I => red_filter1,
+		GREEN_I => grn_filter1,
+		BLUE_I => blue_filter1,
 		HS_I => VtcHs1,
 		VS_I => VtcVs1,
 		VDE_I => VtcVde,
@@ -362,8 +362,13 @@ begin
 		concat_grn <= FbRdData(10 downto 5) & "00";
 		concat_blue <= FbRdData(4 downto 0) & "000";
 		
+		red_filter1 <= red_filter;
+		grn_filter1 <= grn_filter;
+		blue_filter1 <= blue_filter;
+		
 		VtcHs1 <= VtcHs;
 		VtcVs1 <= VtcVs;
+		VtcVde1 <= VtcVde;
 		
 	end if;
 end process;
