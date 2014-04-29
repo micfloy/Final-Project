@@ -360,17 +360,17 @@ concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
 
-red_factor_dec <= to_unsigned(to_ufixed(0.299, 7,-8)*to_ufixed(concat_red,7,-8),11);
-green_factor_dec <= to_unsigned(to_ufixed(0.587, 7,-8)*to_ufixed(concat_grn,7,-8),11);
-blue_factor_dec <= to_unsigned(to_ufixed(0.114, 7,-8)*to_ufixed(concat_blue,7,-8),11);
+red_factor_dec <= to_unsigned(to_ufixed(0.299, 0,-8)*to_ufixed(concat_red,7,0),8);
+green_factor_dec <= to_unsigned(to_ufixed(0.587, 0,-8)*to_ufixed(concat_grn,7,0),8);
+blue_factor_dec <= to_unsigned(to_ufixed(0.114, 0,-8)*to_ufixed(concat_blue,7,0),8);
 
-red_factor <= red_factor_dec(7 downto 0);
-green_factor <= green_factor_dec(7 downto 0);
-blue_factor <= blue_factor_dec(7 downto 0);
+--red_factor <= red_factor_dec;
+--green_factor <= green_factor_dec;
+--blue_factor <= blue_factor_dec;
 
 
 
-t_factor <= red_factor + green_factor + blue_factor;
+t_factor <= red_factor_dec + green_factor_dec + blue_factor_dec;
 
 sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
 				 "11111111";
