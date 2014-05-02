@@ -107,7 +107,7 @@ architecture Behavioral of VmodCAM_Ref is
 signal SysClk, PClk, PClkX2, SysRst, SerClk, SerStb : std_logic;
 signal MSel : std_logic_vector(1 downto 0);
 
-signal VtcHs, VtcHs1, VtcVs, VtcVs1, VtcVde, VtcRst : std_logic;
+signal VtcHs, VtcVs, VtcVde, VtcRst : std_logic;
 signal VtcHCnt, VtcVCnt : NATURAL;
 
 signal CamClk, CamClk_180, CamAPClk, CamBPClk, CamADV, CamBDV, CamAVddEn, CamBVddEn : std_logic;
@@ -178,8 +178,8 @@ LED_O <= VtcHs & VtcHs & VtcVde & async_rst & "0000";
 		RSEL_I => R640_480P, --this project supports only VGA
 		RST_I => VtcRst,
 		VDE_O => VtcVde,
-		HS_O => VtcHs1,
-		VS_O => VtcVs1,
+		HS_O => VtcHs,
+		VS_O => VtcVs,
 		HCNT_O => VtcHCnt,
 		VCNT_O => VtcVCnt
 	);
@@ -360,15 +360,6 @@ concat_red <= FbRdData(15 downto 11) & "000";
 concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
-process(PClk, FbRdData)
-begin
-	if (rising_edge(PClk)) then
-		VtcVs <= VtcVs1;
-		VtcHs <= VtcHs1;
-	end if;
-end process;
-
-
 sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
 				 "11111111";
 sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_grn) > 14 else
@@ -390,21 +381,21 @@ green_cutoff <= concat_grn when unsigned(concat_grn) < 200 else
 blue_cutoff <=	concat_blue when unsigned(concat_blue) < 200 else
 				  "00000000";			  
 		
-red_filter1  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' else
+red_filter  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' else
 				   not concat_red when SW_I(0) = '0' and SW_I(1) = '1' else
---					red_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
+					red_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
 --					"00000000" when SW_I(2) = '1' and SW_I(0) = '0' and SW_I(1) = '0' else
 --					raise_red when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_red;
-grn_filter1  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' else
+grn_filter  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' else
 			      not concat_grn when SW_I(0) = '0' and SW_I(1) = '1' else
---					green_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
+					green_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
 --					"00000000" when SW_I(2) = '1' and SW_I(0) = '0' and SW_I(1) = '1' else
 --					raise_green when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_grn;
-blue_filter1 <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' else
+blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' else
 					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' else
---					blue_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
+					blue_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
 --					"00000000" when SW_I(2) = '1' and SW_I(0) = '1' and SW_I(1) = '0' else
 --					raise_blue when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_blue;
