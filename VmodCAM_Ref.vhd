@@ -394,7 +394,7 @@ grn_filter  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0'
 --					raise_green when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_grn;
 blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0' else
-					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(1) = '0' else
+					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
 					blue_cutoff when SW_I(0) = '1' and SW_I(1) = '1' and SW_I(2) = '0' else
 					"00000000" when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '1' else
 --					raise_blue when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
