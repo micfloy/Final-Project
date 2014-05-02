@@ -124,14 +124,15 @@ signal FbRdy, FbRdEn, FbRdRst, FbRdClk : std_logic;
 signal FbRdData : std_logic_vector(16-1 downto 0);
 signal FbWrARst, FbWrBRst, int_FVA, int_FVB : std_logic;
 
-signal red_filter, grn_filter, blue_filter : std_logic_vector(7 downto 0);
 signal concat_red, concat_grn, concat_blue : std_logic_vector(7 downto 0);
 signal sepia_red, sepia_grn, sepia_blue : std_logic_vector(7 downto 0);
-signal grayscale : std_logic_vector(7 downto 0);
 
-signal t_factor : unsigned(8);
-signal red_factor_dec, green_factor_dec, blue_factor_dec : unsigned(18); 
-signal red_factor, green_factor, blue_factor : unsigned(8);
+signal raise_red, raise_green, raise_blue : std_logic_vector(7 downto 0);
+signal red_cutoff, green_cutoff, blue_cutoff : std_logic_vector(7 downto 0);
+signal red_filter, grn_filter, blue_filter : std_logic_vector(7 downto 0);
+
+
+
 
 begin
 
@@ -360,40 +361,44 @@ concat_grn <= FbRdData(10 downto 5) & "00";
 concat_blue <= FbRdData(4 downto 0) & "000";
 
 
-red_factor_dec <= (299*unsigned(concat_red))/1000;
-green_factor_dec <= (587*unsigned(concat_grn))/1000;
-blue_factor_dec <= (114*unsigned(concat_blue))/1000;
-
-red_factor <= red_factor_dec(7 downto 0);
-green_factor <= green_factor_dec(7 downto 0);
-blue_factor <= blue_factor_dec(7 downto 0);
-
-
-
-t_factor <= red_factor + green_factor + blue_factor;
-
-sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when t_factor < 206 else
+sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
 				 "11111111";
 sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_grn) > 14 else
 				 "00000000";
 sepia_blue <= std_logic_vector(unsigned(concat_blue) - 56) when unsigned(concat_blue) > 56 else
+				  "00000000";	
+
+raise_red <= std_logic_vector(unsigned(concat_red) + 50) when unsigned(concat_red) < 205 else
+				 "11111111";
+raise_green <= std_logic_vector(unsigned(concat_grn) + 50) when unsigned(concat_grn) < 205 else
+				 "11111111";
+raise_blue <= std_logic_vector(unsigned(concat_blue) + 50) when unsigned(concat_blue) < 205 else
+				 "11111111";	
+
+red_cutoff <= concat_red when unsigned(concat_red) < 200 else
 				  "00000000";
-
-grayscale <= std_logic_vector(t_factor);
-				  
-
+green_cutoff <= concat_grn when unsigned(concat_grn) < 200 else
+				  "00000000";
+blue_cutoff <=	concat_blue when unsigned(concat_blue) < 200 else
+				  "00000000";			  
 		
 red_filter  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' else
 				   not concat_red when SW_I(0) = '0' and SW_I(1) = '1' else
-					grayscale when SW_I(0) = '1' and SW_I(1) = '1' else
+					red_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
+					"00000000" when SW_I(2) = '1' and SW_I(0) = '0' and SW_I(1) = '0' else
+					raise_red when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_red;
 grn_filter  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' else
 			      not concat_grn when SW_I(0) = '0' and SW_I(1) = '1' else
-					grayscale when SW_I(0) = '1' and SW_I(1) = '1' else
+					green_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
+					"00000000" when SW_I(2) = '1' and SW_I(0) = '0' and SW_I(1) = '1' else
+					raise_green when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_grn;
 blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' else
 					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' else
-					grayscale when SW_I(0) = '1' and SW_I(1) = '1' else
+					blue_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
+					"00000000" when SW_I(2) = '1' and SW_I(0) = '1' and SW_I(1) = '0' else
+					raise_blue when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_blue;
 					
 end Behavioral;
