@@ -381,22 +381,22 @@ green_cutoff <= concat_grn when unsigned(concat_grn) < 200 else
 blue_cutoff <=	concat_blue when unsigned(concat_blue) < 200 else
 				  "00000000";			  
 		
-red_filter  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' else
-				   not concat_red when SW_I(0) = '0' and SW_I(1) = '1' else
-					red_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
---					"00000000" when SW_I(2) = '1' and SW_I(0) = '0' and SW_I(1) = '0' else
+red_filter  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0' else
+				   not concat_red when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
+					red_cutoff when SW_I(0) = '1' and SW_I(1) = '1' and SW_I(2) = '0' else
+					"00000000" when SW_I(0) = '0' and SW_I(1) = '0' and SW_I(2) = '1' else
 --					raise_red when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_red;
-grn_filter  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' else
-			      not concat_grn when SW_I(0) = '0' and SW_I(1) = '1' else
-					green_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
---					"00000000" when SW_I(2) = '1' and SW_I(0) = '0' and SW_I(1) = '1' else
+grn_filter  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0' else
+			      not concat_grn when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
+					green_cutoff when SW_I(0) = '1' and SW_I(1) = '1' and SW_I(2) = '0' else
+					"00000000" when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '1' else
 --					raise_green when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_grn;
-blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' else
-					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' else
-					blue_cutoff when SW_I(0) = '1' and SW_I(1) = '1' else
---					"00000000" when SW_I(2) = '1' and SW_I(0) = '1' and SW_I(1) = '0' else
+blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0' else
+					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(1) = '0' else
+					blue_cutoff when SW_I(0) = '1' and SW_I(1) = '1' and SW_I(2) = '0' else
+					"00000000" when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '1' else
 --					raise_blue when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
 				   concat_blue;
 					
