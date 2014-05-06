@@ -19,3 +19,6 @@ Each subsequent funtionality will have two lessons to complete.
 The initial design for displaying video I am taking from a code template provided with the video component.  The challenge here will be making it work on a a much newer version of ISE design suite than it was designed for.  I will examine the feasibility of implementing filtering in hardware vs. software as I go, and possibly take a mixed approach to this problem.  I expect to implement the majority in software, but I would like to take full advantage of the speed of the FPGA.
 
 I have all necessary code templates to begin work.
+
+#Implementation
+
