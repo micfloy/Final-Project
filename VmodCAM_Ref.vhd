@@ -129,10 +129,10 @@ signal sepia_red, sepia_grn, sepia_blue : std_logic_vector(7 downto 0);
 
 signal raise_red, raise_green, raise_blue : std_logic_vector(7 downto 0);
 signal red_cutoff, green_cutoff, blue_cutoff : std_logic_vector(7 downto 0);
-signal red_filter, red_filter1, grn_filter, grn_filter1, blue_filter, blue_filter1 : std_logic_vector(7 downto 0);
+signal red_filter, grn_filter, blue_filter : std_logic_vector(7 downto 0);
+signal neg_red, neg_green, neg_blue : std_logic_vector(7 downto 0);
 
-
-
+signal altered_data : std_logic_vector(15 downto 0);
 
 begin
 
@@ -207,7 +207,7 @@ LED_O <= VtcHs & VtcHs & VtcVde & async_rst & "0000";
 		
 		ENB => CamBDV,
 		RSTB_I	=> FbWrBRst,
-		DIB => CamBD,
+		DIB => altered_data,
 		CLKB => CamBPClk,
 		
 		ddr2clk_2x => DDR2Clk_2x,
@@ -259,9 +259,9 @@ FbWrBRst <= async_rst or not int_FVB;
 -- DVI Transmitter
 ----------------------------------------------------------------------------------
 	Inst_DVITransmitter: entity digilent.DVITransmitter PORT MAP(
-		RED_I => red_filter,
-		GREEN_I => grn_filter,
-		BLUE_I => blue_filter,
+		RED_I => FbRdData(15 downto 11) & "000",
+		GREEN_I => FbRdData(10 downto 5) & "00",
+		BLUE_I => FbRdData(4 downto 0) & "000",
 		HS_I => VtcHs,
 		VS_I => VtcVs,
 		VDE_I => VtcVde,
@@ -356,9 +356,11 @@ dummy_t <= '1';
 --Filtering
 ---------------------------------------------------------------------------------------
 
-concat_red <= FbRdData(15 downto 11) & "000";
-concat_grn <= FbRdData(10 downto 5) & "00";
-concat_blue <= FbRdData(4 downto 0) & "000";
+concat_red <= CamBD(15 downto 11) & "000";
+concat_grn <= CamBD(10 downto 5) & "00";
+concat_blue <= CamBD(4 downto 0) & "000";
+
+altered_data <= red_filter(7 downto 3) & grn_filter(7 downto 2) & blue_filter(7 downto 3);
 
 sepia_red <= std_logic_vector(unsigned(concat_red) + 49) when unsigned(concat_red) < 206 else
 				 "11111111";
@@ -367,11 +369,11 @@ sepia_grn <= std_logic_vector(unsigned(concat_grn) - 14) when unsigned(concat_gr
 sepia_blue <= std_logic_vector(unsigned(concat_blue) - 56) when unsigned(concat_blue) > 56 else
 				  "00000000";	
 
-raise_red <= std_logic_vector(unsigned(concat_red) + 50) when unsigned(concat_red) < 205 else
+raise_red <= std_logic_vector(unsigned(concat_red) + 55) when unsigned(concat_red) < 200 else
 				 "11111111";
-raise_green <= std_logic_vector(unsigned(concat_grn) + 50) when unsigned(concat_grn) < 205 else
+raise_green <= std_logic_vector(unsigned(concat_grn) + 55) when unsigned(concat_grn) < 200 else
 				 "11111111";
-raise_blue <= std_logic_vector(unsigned(concat_blue) + 50) when unsigned(concat_blue) < 205 else
+raise_blue <= std_logic_vector(unsigned(concat_blue) + 55) when unsigned(concat_blue) < 200 else
 				 "11111111";	
 
 red_cutoff <= concat_red when unsigned(concat_red) < 200 else
@@ -379,26 +381,28 @@ red_cutoff <= concat_red when unsigned(concat_red) < 200 else
 green_cutoff <= concat_grn when unsigned(concat_grn) < 200 else
 				  "00000000";
 blue_cutoff <=	concat_blue when unsigned(concat_blue) < 200 else
-				  "00000000";			  
+				  "00000000";
+
+neg_red <= not concat_red;
+neg_green <= not concat_grn;
+neg_blue <=	not concat_blue;			  
 		
 red_filter  <= sepia_red when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0' else
-				   not concat_red when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
+				   neg_red when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
 					red_cutoff when SW_I(0) = '1' and SW_I(1) = '1' and SW_I(2) = '0' else
-					"00000000" when SW_I(0) = '0' and SW_I(1) = '0' and SW_I(2) = '1' else
---					raise_red when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
+					raise_red when SW_I(0) = '0' and SW_I(1) = '0' and SW_I(2) = '1' else
 				   concat_red;
 grn_filter  <= sepia_grn  when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0' else
-			      not concat_grn when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
+			      neg_green when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
 					green_cutoff when SW_I(0) = '1' and SW_I(1) = '1' and SW_I(2) = '0' else
-					"00000000" when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '1' else
---					raise_green when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
+					raise_green when SW_I(0) = '0' and SW_I(1) = '0' and SW_I(2) = '1' else
 				   concat_grn;
 blue_filter <= sepia_blue when SW_I(0) = '1' and SW_I(1) = '0' and SW_I(2) = '0' else
-					not concat_blue when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
+					neg_blue when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '0' else
 					blue_cutoff when SW_I(0) = '1' and SW_I(1) = '1' and SW_I(2) = '0' else
-					"00000000" when SW_I(0) = '0' and SW_I(1) = '1' and SW_I(2) = '1' else
---					raise_blue when SW_I(2) = '1' and SW_I(1) = '1' and SW_I(0) = '1' else
+					raise_blue when SW_I(0) = '0' and SW_I(1) = '0' and SW_I(2) = '1' else
 				   concat_blue;
+					
 					
 end Behavioral;
 
