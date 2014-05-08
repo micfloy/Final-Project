@@ -6,7 +6,7 @@ Implementation of a stereo video module with Atlys Spartan 6 FPGA.
 Check out this demo video to see the final product:
 
 ##(Functionality Update)
-I believe my final design has acheived A functionality, with some redefining of my initial plan.  My final design implemented 4 image filters, as well as allowing the altered and unaltered video streams to be displayed side-by-side on the monitor.  In order to focus on the video filtering part of the project, I chose not waste time implementing microblaze again just to read in commands to switch the video filters.  Instead I used the switches provided on the board.
+I believe my final design has acheived B functionality, with some redefining of my initial plan.  My final design implemented 4 image filters, as well as allowing the altered and unaltered video streams to be displayed side-by-side on the monitor.  In order to focus on the video filtering part of the project, I chose not waste time implementing microblaze again just to read in commands to switch the video filters.  Instead I used the switches provided on the board.
 
 #Prelab
 
